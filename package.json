@@ -1,0 +1,20 @@
+{
+  "name": "codemod-split-barrel-imports",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "split-utils-imports": "./bin/split-utils-imports.mjs",
+    "list-barrel-exports": "./bin/list-barrel-exports.mjs"
+  },
+  "scripts": {
+    "test": "node --test $(find test -name '*.test.*')"
+  },
+  "author": "Diego Toro <diego.toro527@gmail.com>",
+  "license": "ISC",
+  "description": "Codemod to replace barrel imports with per-file imports for internal utils.",
+  "dependencies": {
+    "@babel/parser": "7.28.0",
+    "glob": "11.0.3",
+    "jscodeshift": "17.3.0"
+  }
+}
