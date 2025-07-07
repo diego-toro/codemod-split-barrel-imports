@@ -19,7 +19,7 @@ node ./bin/list-barrel-exports.mjs <utilsDir> > exports-map.json
 ### Example
 
 ```bash
-node ./bin/list-barrel-exports.mjs apps/webapp/src/js/includes/common/utils > exports-map.json
+node path/bin/list-barrel-exports.mjs apps/webapp/src/js/includes/common/utils > exports-map.json
 ```
 
 ---
@@ -49,12 +49,11 @@ node ./bin/split-utils-imports.mjs <srcDir> <exportsMap> [--basePath path] [--al
 ### Example
 
 ```bash
-node ./bin/split-utils-imports.mjs \
-  apps/webapp/src/js/includes/common/utils \
-  ./exports-map.json \
-  --basePath apps/webapp/src \
-  --alias utils=apps/webapp/src/js/includes/common/utils \
-  --exclude foo,bar
+node path/bin/split-utils-imports.mjs \
+apps/webapp/src/js/includes/common/utils \
+./exports-map.json \
+--basePath apps/webapp/src \
+--alias js/includes/common/utils=apps/webapp/src/js/includes/common/utils
 ```
 
 ---
