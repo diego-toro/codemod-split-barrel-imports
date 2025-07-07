@@ -2,10 +2,9 @@
 
 import path from "path";
 import { readFileSync } from "fs";
-import { runCodeMod } from "../src/split-utils-imports.mjs"; // Ajusta si está en otra ruta
+import { runCodeMod } from "../src/split-utils-imports.mjs";
 
 function parseArgs(argv) {
-  console.log("🚀 ~ parseArgs ~ argv:", argv);
   const args = {
     positional: [],
     basePath: null,
