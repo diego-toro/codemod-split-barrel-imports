@@ -10,6 +10,7 @@ function parseArgs(argv) {
     basePath: null,
     aliases: [],
     excludeSymbols: new Set(),
+    targetBarrel: null,
   };
 
   for (let i = 2; i < argv.length; i++) {
@@ -17,7 +18,6 @@ function parseArgs(argv) {
     if (arg === "--basePath") {
       args.basePath = path.resolve(argv[++i]);
     } else if (arg === "--alias") {
-      // format: alias=path
       const [match, aliasPath] = argv[++i].split("=");
       if (match && aliasPath) {
         args.aliases.push({ match, path: path.resolve(aliasPath) });
@@ -27,6 +27,8 @@ function parseArgs(argv) {
       for (const symbol of symbols) {
         args.excludeSymbols.add(symbol);
       }
+    } else if (arg === "--targetBarrel") {
+      args.targetBarrel = argv[++i];
     } else {
       args.positional.push(arg);
     }
@@ -48,11 +50,10 @@ if (!srcDir || !barrelMapPath) {
 const basePath = args.basePath || path.resolve(srcDir);
 const barrelExportsMap = JSON.parse(readFileSync(barrelMapPath, "utf-8"));
 
-console.log("🚀 ~ runCodeMod ~ aliases:", args.aliases);
-
 runCodeMod(path.resolve(srcDir), {
   basePath,
   aliases: args.aliases,
   barrelExportsMap,
   excludeSymbols: args.excludeSymbols,
+  targetBarrel: args.targetBarrel,
 });

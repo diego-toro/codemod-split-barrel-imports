@@ -17,14 +17,16 @@ test("runCodeMod should split named imports into per-file imports", async () => 
     "fixtures/codemod/relative-imports/src/utils/innerUtils/bar.js": ["bar"],
   };
   try {
-    await runCodeMod(
-      path.resolve("fixtures/codemod/relative-imports/src/utils"),
-      {
-        basePath: path.resolve("fixtures/codemod/relative-imports/src"),
-        barrelExportsMap,
-        excludeSymbols: new Set(),
-      }
-    );
+    await runCodeMod(path.resolve("fixtures/codemod/relative-imports/src"), {
+      basePath: path.resolve("fixtures/codemod/relative-imports/src"),
+      targetBarrel: path.resolve(
+        "fixtures/codemod/relative-imports/src/utils/innerUtils/index.js"
+      ),
+      barrelExportsMap,
+      excludeSymbols: new Set(),
+    });
+
+    assert.equal(writeCalls.length, 1);
 
     const [filePath, writtenContent] = writeCalls[0];
 
@@ -60,20 +62,22 @@ test("should preserve excluded symbols in the original import", async () => {
   };
 
   try {
-    await runCodeMod(
-      path.resolve("fixtures/codemod/exclude-symbols/src/utils"),
-      {
-        basePath: path.resolve("fixtures/codemod/exclude-symbols/src"),
-        barrelExportsMap,
-        aliases: [
-          {
-            match: "utils",
-            path: "fixtures/codemod/exclude-symbols/src/utils",
-          },
-        ],
-        excludeSymbols: new Set(["foo"]),
-      }
-    );
+    await runCodeMod(path.resolve("fixtures/codemod/exclude-symbols/src"), {
+      basePath: path.resolve("fixtures/codemod/exclude-symbols/src"),
+      targetBarrel: path.resolve(
+        "fixtures/codemod/exclude-symbols/src/utils/innerUtils/index.js"
+      ),
+      barrelExportsMap,
+      aliases: [
+        {
+          match: "utils/innerUtils",
+          path: "fixtures/codemod/exclude-symbols/src/utils/innerUtils",
+        },
+      ],
+      excludeSymbols: new Set(["foo"]),
+    });
+
+    assert.equal(writeCalls.length, 1);
 
     const [filePath, writtenContent] = writeCalls[0];
 
@@ -110,20 +114,20 @@ test("should throw if a symbol is missing from the barrel map", async () => {
   let threw = false;
 
   try {
-    await runCodeMod(
-      path.resolve("fixtures/codemod/missing-symbol/src/utils"),
-      {
-        basePath: path.resolve("fixtures/codemod/missing-symbol/src"),
-        barrelExportsMap,
-        aliases: [
-          {
-            match: "utils",
-            path: "fixtures/codemod/exclude-symbols/src/utils",
-          },
-        ],
-        excludeSymbols: new Set(),
-      }
-    );
+    await runCodeMod(path.resolve("fixtures/codemod/missing-symbol/src"), {
+      basePath: path.resolve("fixtures/codemod/missing-symbol/src"),
+      targetBarrel: path.resolve(
+        "fixtures/codemod/missing-symbol/src/utils/innerUtils/index.js"
+      ),
+      barrelExportsMap,
+      aliases: [
+        {
+          match: "utils/innerUtils",
+          path: "fixtures/codemod/exclude-symbols/src/utils/innerUtils",
+        },
+      ],
+      excludeSymbols: new Set(),
+    });
   } catch (err) {
     threw = true;
     assert.match(String(err), /'missing': no export found/);
@@ -151,20 +155,22 @@ test("should preserve default import and split named ones", async () => {
   };
 
   try {
-    await runCodeMod(
-      path.resolve("fixtures/codemod/default-import/src/utils"),
-      {
-        basePath: path.resolve("fixtures/codemod/default-import/src"),
-        barrelExportsMap,
-        aliases: [
-          {
-            match: "utils",
-            path: "fixtures/codemod/exclude-symbols/src/utils",
-          },
-        ],
-        excludeSymbols: new Set(),
-      }
-    );
+    await runCodeMod(path.resolve("fixtures/codemod/default-import/src"), {
+      basePath: path.resolve("fixtures/codemod/default-import/src"),
+      targetBarrel: path.resolve(
+        "fixtures/codemod/default-import/src/utils/innerUtils/index.js"
+      ),
+      barrelExportsMap,
+      aliases: [
+        {
+          match: "utils/innerUtils",
+          path: "fixtures/codemod/exclude-symbols/src/utils/innerUtils",
+        },
+      ],
+      excludeSymbols: new Set(),
+    });
+
+    assert.equal(writeCalls.length, 1);
 
     const [filePath, writtenContent] = writeCalls[0];
 
@@ -197,14 +203,22 @@ test("should strip /index from paths in barrelExportsMap", async () => {
   };
 
   try {
-    await runCodeMod(path.resolve("fixtures/codemod/strip-index/src/utils"), {
+    await runCodeMod(path.resolve("fixtures/codemod/strip-index/src"), {
       basePath: path.resolve("fixtures/codemod/strip-index/src"),
+      targetBarrel: path.resolve(
+        "fixtures/codemod/strip-index/src/utils/foo/index.js"
+      ),
       barrelExportsMap,
       aliases: [
-        { match: "utils", path: "fixtures/codemod/exclude-symbols/src/utils" },
+        {
+          match: "utils/foo",
+          path: "fixtures/codemod/exclude-symbols/src/utils/foo",
+        },
       ],
       excludeSymbols: new Set(),
     });
+
+    assert.equal(writeCalls.length, 1);
 
     const [filePath, writtenContent] = writeCalls[0];
 
@@ -232,20 +246,22 @@ test("should preserve unrelated imports", async () => {
   };
 
   try {
-    await runCodeMod(
-      path.resolve("fixtures/codemod/preserve-unrelated/src/utils"),
-      {
-        basePath: path.resolve("fixtures/codemod/preserve-unrelated/src"),
-        barrelExportsMap,
-        aliases: [
-          {
-            match: "utils",
-            path: "fixtures/codemod/exclude-symbols/src/utils",
-          },
-        ],
-        excludeSymbols: new Set(),
-      }
-    );
+    await runCodeMod(path.resolve("fixtures/codemod/preserve-unrelated/src"), {
+      basePath: path.resolve("fixtures/codemod/preserve-unrelated/src"),
+      targetBarrel: path.resolve(
+        "fixtures/codemod/preserve-unrelated/src/utils/innerUtils/index.ts"
+      ),
+      barrelExportsMap,
+      aliases: [
+        {
+          match: "utils/innerUtils",
+          path: "fixtures/codemod/exclude-symbols/src/utils/innerUtils",
+        },
+      ],
+      excludeSymbols: new Set(),
+    });
+
+    assert.equal(writeCalls.length, 1);
 
     const [filePath, writtenContent] = writeCalls[0];
 
@@ -283,7 +299,10 @@ test("should not modify imports that are outside basePath or aliases", async () 
 
   try {
     await runCodeMod(fixturePath, {
-      basePath: path.resolve("fixtures/codemod/ignore-non-target/src/utils"),
+      basePath: path.resolve("fixtures/codemod/ignore-non-target/src"),
+      targetBarrel: path.resolve(
+        "fixtures/codemod/ignore-non-target/src/utils/innerUtils/index.js"
+      ),
       barrelExportsMap,
       excludeSymbols: new Set(),
     });

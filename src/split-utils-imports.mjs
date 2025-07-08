@@ -3,12 +3,17 @@ import fs from "fs";
 import { glob } from "glob";
 import customParser from "./customParser.mjs";
 import path from "path";
-import { shouldTransformImport } from "./shouldTransformImport.mjs";
+import { createShouldTransformImport } from "./shouldTransformImport.mjs";
 
 export async function runCodeMod(
   srcDirToTransform,
-  { basePath, aliases = [], barrelExportsMap, excludeSymbols }
+  { basePath, aliases = [], barrelExportsMap, excludeSymbols, targetBarrel }
 ) {
+  const shouldTransformImport = createShouldTransformImport({
+    aliases,
+    targetBarrel,
+  });
+
   const exportToFileMap = Object.entries(barrelExportsMap).reduce(
     (acc, [rawFilePath, exports]) => {
       let cleanedPath = path.relative(basePath, rawFilePath);
@@ -23,10 +28,6 @@ export async function runCodeMod(
       return acc;
     },
     {}
-  );
-
-  const absoluteBarrelMap = new Set(
-    Object.keys(barrelExportsMap).map((p) => path.relative(basePath, p))
   );
 
   function buildImportPath({ sourcePath, file, filePath, basePath }) {
@@ -49,13 +50,7 @@ export async function runCodeMod(
 
     const utilsImport = root.find(j.ImportDeclaration).filter((pathNode) => {
       const importSource = pathNode.node.source.value;
-      return shouldTransformImport({
-        importSource,
-        basePath,
-        filePath,
-        aliases,
-        absoluteBarrelMap,
-      });
+      return shouldTransformImport({ importSource, filePath });
     });
 
     if (!utilsImport.size()) return null;

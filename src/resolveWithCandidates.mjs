@@ -22,15 +22,15 @@ export function resolveWithCandidates(basePath) {
   return null;
 }
 
-export function isBarrel(basePath) {
+export function getIfBarrel(basePath) {
   const candidates = ["/index.ts", "/index.tsx", "/index.js", "/index.jsx"];
 
   for (const ext of candidates) {
     const fullPath = basePath + ext;
     if (fs.existsSync(fullPath)) {
-      return true;
+      return fullPath;
     }
   }
 
-  return false;
+  return null;
 }

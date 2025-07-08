@@ -1,24 +1,32 @@
 import path from "path";
-import { isBarrel } from "./resolveWithCandidates.mjs";
+import { getIfBarrel } from "./resolveWithCandidates.mjs";
 
-export function shouldTransformImport({ importSource, filePath, aliases }) {
-  const isRelative = importSource.startsWith(".");
+export function createShouldTransformImport({ aliases, targetBarrel }) {
+  const absoluteTargetBarrel = path.resolve(targetBarrel);
 
-  if (isRelative) {
-    const resolvedPath = path.resolve(path.dirname(filePath), importSource);
-    return isBarrel(resolvedPath);
-  }
+  return function shouldTransformImport({ importSource, filePath }) {
+    let resolvedPath;
 
-  for (const alias of aliases) {
-    if (
-      importSource === alias.match ||
-      importSource.startsWith(`${alias.match}/`)
-    ) {
-      const suffix = importSource.slice(alias.match.length + 1);
-      const resolvedPath = path.resolve(path.dirname(filePath), suffix);
-      return isBarrel(resolvedPath);
+    if (importSource.startsWith(".")) {
+      resolvedPath = path.resolve(path.dirname(filePath), importSource);
+    } else {
+      for (const alias of aliases) {
+        if (importSource === alias.match) {
+          return true;
+        }
+      }
     }
-  }
 
-  return false;
+    if (!resolvedPath) {
+      return false;
+    }
+
+    const resolvedBarrel = getIfBarrel(resolvedPath);
+
+    if (!resolvedBarrel) {
+      return null;
+    }
+
+    return absoluteTargetBarrel === resolvedBarrel;
+  };
 }
